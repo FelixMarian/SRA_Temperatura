@@ -1,0 +1,17 @@
+Pini fol
+RS - 7
+E- 6
+D4-5
+D5-4
+D6-3
+D7-2
+
+Pini DHT11
+Data-13
+
+
+Explicatii
+
+OLED FOlosim 
+U8G2
+Comunicam prin I2C, OLED-ul e 128x64 si se afla la adresa 0x3C
