@@ -26,27 +26,20 @@ public:
     //Cand se ajunge la OCR1A activam intreruperea
     TIMSK1 |= (1 << OCIE1A);
     sei();
-  }
- 
-  void returnClock() {
-    ISR(TIMER1_COMPA_vect) {
-      time++;
-      int secunde = time % 60;
-      int minute_temp = time / 60;
-      int ora = minute_temp / 60;
-      int minute = minute_temp % 60;
-      Serial.print("Ora: ");
-      Serial.print(ora);
-      Serial.print(" Min: ");
-      Serial.print(minute);
-      Serial.print(" Sec: ");
-      Serial.print(secunde);
-    }
+
+    
   }
 
-  void setClockTime(int initial_time) {
-    time = initial_time;
+  int returnClock() {
+    return time;
+  }
+
+
+
+  void setClockTime(int new_time) {
+    time = new_time;
   }
 };
+
 
 #endif
