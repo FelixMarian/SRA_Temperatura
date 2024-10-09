@@ -30,3 +30,5 @@ Comunicam prin I2C, OLED-ul e 128x64 si se afla la adresa 0x3C
 Clock
 Timer 1 cu prescalar 1024, la 15365 da overflow, la o secunda. Modul CTC pt a seta maximul pe care il vrem.
 
+ADC
+Folosim prescalar 128 pt frecv 125KHz, folosim tensiunea interna de referinta

@@ -1,23 +1,27 @@
 #include "OLED_Display.h"
 #include "Clock.h"
+#include "LM35.h"
 #include <string.h>
 
 OLED_Display oled;
-
 Clock clock(5000);
-
+LM35 tempSens;
+int temperature;
+char temp_text[20];
 char clock_formatted_time[50];
 
 void setup() {
   oled.init();
   Serial.begin(9600);
   clock.init();
+  tempSens.init();
 }
 
 void loop() {
-
-  oled.showText("21", clock_formatted_time);
+  int temperature = tempSens.getTemp();
+  itoa(temperature,temp_text,10);
   clock.returnClock();
+  oled.showText(temp_text, clock_formatted_time);
   delay(1000);
 }
 
