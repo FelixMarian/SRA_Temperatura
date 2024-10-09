@@ -7,7 +7,7 @@ D6-3
 D7-2
 
 Pini LM35
-OUT -13
+OUT -A0
 
 Pini OLED
 SCL/SDA
