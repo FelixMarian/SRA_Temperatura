@@ -18,7 +18,9 @@ void setup() {
 }
 
 void loop() {
-  int temperature = tempSens.getTemp();
+  uint16_t temperature = tempSens.getTemp(2);
+  Serial.print("TEMP: ");
+  Serial.println(temperature);
   itoa(temperature,temp_text,10);
   clock.returnClock();
   oled.showText(temp_text, clock_formatted_time);
