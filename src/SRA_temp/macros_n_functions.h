@@ -16,13 +16,14 @@
 #define K_P_adr 0x03
 #define K_L_adr 0x04
 #define K_D_adr 0x05
+#define T_set_adr 0x06
 
 
 int read_pB(int pin){
 //HIGH - 1 | LOW - 0
 if(PINB & (1<<(pin-8)))
   return 1;
-
+return 0;
 }
 
 

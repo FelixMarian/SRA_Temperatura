@@ -1,6 +1,8 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include "macros_n_functions.h"
+
 class Button{
 private:
   int pin;
@@ -12,7 +14,7 @@ public:
     set_INPUT_pB(pin);
   }
   int getValue(){
-    read_pB();
+    return read_pB(pin);
   }
 };
 
