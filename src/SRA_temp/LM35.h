@@ -8,7 +8,7 @@ class LM35 {
 private:
 public:
   void init() {
-    set_INPUT_A2();
+    set_INPUT_A0();
 
     //Setam tensiunea de referinta ca fiind cea interna 5V
     ADMUX = (ADMUX & ~(1 << REFS1)) | (1 << REFS0);
@@ -29,7 +29,7 @@ public:
 
 
 
-    return (uint16_t)ADC;
+    return (uint16_t)temperature;
   
   }
 };

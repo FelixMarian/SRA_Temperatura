@@ -7,7 +7,7 @@
 #define set_INPUT_pB(pin) DDRB &= ~(1<<(pin-8))
 #define write_HIGH_pB(pin) PORTB |= (1<<(pin-8))
 #define write_LOW_pB(pin) PORTB &= ~(1<<(pin-8))
-#define set_INPUT_A2() DDRC &= ~(1 << PC2)
+#define set_INPUT_A0() DDRC &= ~(1 << PC0)
 
 
 #define T_incalzire_adr 0x00

@@ -5,7 +5,7 @@
 #include "macros_n_functions.h"
 
 
-class F_EEPROM(){
+class F_EEPROM{
 private:
   byte t_set,t_incalzire, t_mentinere, t_racire, K_p, K_l, K_d;
 public:
@@ -34,6 +34,8 @@ public:
   int get_t_K_p(){return K_p;}
   int get_t_K_l(){return K_l;}
   int get_t_K_d(){return K_d;}
+
+
 };
 
 #endif

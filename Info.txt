@@ -13,10 +13,10 @@ Pini OLED
 SCL/SDA
 
 Pini butoane
-Btn1-9
-Btn2-10
-Btn3-8
-Btn4-12
+Btn1-9 ok
+Btn2-10 cancel
+Btn3-8 left
+Btn4-12 right
 
 Led - 1
 
@@ -24,7 +24,7 @@ Led - 1
 Explicatii
 
 OLED FOlosim 
-U8G2
+U8X8
 Comunicam prin I2C, OLED-ul e 128x64 si se afla la adresa 0x3C
 
 Clock
@@ -32,3 +32,28 @@ Timer 1 cu prescalar 1024, la 15365 da overflow, la o secunda. Modul CTC pt a se
 
 ADC
 Folosim prescalar 128 pt frecv 125KHz, folosim tensiunea interna de referinta
+
+
+LCD
+
+#define T_incalzire_adr 0x00
+#define T_mentinere_adr 0x01
+#define T_racire_adr 0x02
+#define K_P_adr 0x03
+#define K_L_adr 0x04
+#define K_D_adr 0x05
+#define T_set_adr 0x06
+
+
+
+
+Soluție: Driver de MOSFET
+Pentru a comanda corect un MOSFET de putere care necesită un curent mare la poartă, poți folosi un driver de MOSFET între Arduino și MOSFET-ul de putere. Un driver de MOSFET va furniza curentul necesar pentru a încărca și descărca rapid capacitatea de poartă a MOSFET-ului și va reduce stresul asupra Arduino-ului. Exemple de drivere de MOSFET sunt IR2104, TC4420, sau TC4422.
+
+Circuit alternativ: Tranzistor intermediar
+Dacă nu ai un driver de MOSFET la îndemână, poți folosi un tranzistor bipolar de joasă putere (de exemplu, un 2N2222) între Arduino și MOSFET. Acest tranzistor va acționa ca un amplificator de curent pentru semnalul de comandă:
+
+Pinul de comandă al Arduino-ului este conectat la baza unui tranzistor NPN (cum ar fi 2N2222) printr-o rezistență de 330Ω-1kΩ. 330
+Emitorul tranzistorului NPN este conectat la masă.
+Colecția tranzistorului NPN este conectată la poarta MOSFET-ului printr-o rezistență de valoare mică (10Ω - 100Ω)47 pentru a controla impulsul de curent de încărcare a porții.
+Acest circuit va permite MOSFET-ului să comute eficient fără a solicita excesiv pinul Arduino.

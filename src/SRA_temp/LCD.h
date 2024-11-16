@@ -15,35 +15,46 @@ public:
     lcd16x2.begin(16, 2);
   }
 
+  void show_value(int value){
+    lcd16x2.setCursor(0,0);
+    lcd16x2.print("               ");
+    lcd16x2.setCursor(4,0);
+    lcd16x2.print(value);
+  }
+
   void write_menu(byte state) {
     switch (state) {
+      case 0:
+        lcd16x2.setCursor(0, 0);
+        lcd16x2.write("-> START     ");
+        break;
       case 1:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set T_SET <-");
+        lcd16x2.write("Set T_SET        ");
         break;
       case 2:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set T_Incalzire <-");
+        lcd16x2.write("Set T_Incalzire        ");
         break;
       case 3:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set T_mentinere <-");
+        lcd16x2.write("Set T_mentinere       ");
         break;
       case 4:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set T_racire <-");
+        lcd16x2.write("Set T_racire          ");
         break;
       case 5:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set Kp <-");
+        lcd16x2.write("Set Kp          ");
         break;
       case 6:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set Kl <-");
+        lcd16x2.write("Set Kl          ");
         break;
       case 7:
         lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> Set Kd <-");
+        lcd16x2.write("Set Kd          ");
         break;
       default:
         Serial.println("Unknown state");
