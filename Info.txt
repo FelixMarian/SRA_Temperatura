@@ -31,7 +31,7 @@ Clock
 Timer 1 cu prescalar 1024, la 15365 da overflow, la o secunda. Modul CTC pt a seta maximul pe care il vrem.
 
 ADC
-Folosim prescalar 128 pt frecv 125KHz, folosim tensiunea interna de referinta
+Folosim prescalar 128 pt frecv 125KHz, folosim tensiunea interna de referinta. Filtram valorile ca medie a 20 de valori
 
 
 LCD
@@ -47,13 +47,6 @@ LCD
 
 
 
-Soluție: Driver de MOSFET
-Pentru a comanda corect un MOSFET de putere care necesită un curent mare la poartă, poți folosi un driver de MOSFET între Arduino și MOSFET-ul de putere. Un driver de MOSFET va furniza curentul necesar pentru a încărca și descărca rapid capacitatea de poartă a MOSFET-ului și va reduce stresul asupra Arduino-ului. Exemple de drivere de MOSFET sunt IR2104, TC4420, sau TC4422.
-
-Circuit alternativ: Tranzistor intermediar
-Dacă nu ai un driver de MOSFET la îndemână, poți folosi un tranzistor bipolar de joasă putere (de exemplu, un 2N2222) între Arduino și MOSFET. Acest tranzistor va acționa ca un amplificator de curent pentru semnalul de comandă:
-
-Pinul de comandă al Arduino-ului este conectat la baza unui tranzistor NPN (cum ar fi 2N2222) printr-o rezistență de 330Ω-1kΩ. 330
-Emitorul tranzistorului NPN este conectat la masă.
-Colecția tranzistorului NPN este conectată la poarta MOSFET-ului printr-o rezistență de valoare mică (10Ω - 100Ω)47 pentru a controla impulsul de curent de încărcare a porții.
-Acest circuit va permite MOSFET-ului să comute eficient fără a solicita excesiv pinul Arduino.
+Folosim MJE800 ca tranzistor cu emitoru conectat la gnd sa pot sa ii dau 0.7+ in baza din Arduino pe care il controlam din D11
+PWM-ul de pe D11 este conectat la OC2A, vom folosi FAST PWM neinversat
+Este legat la Timer 2 pe 8 biti, 0-255

@@ -17,6 +17,9 @@ public:
     ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN);
   }
   uint16_t getTemp(uint8_t ch) {
+    //Filtram datele printr-o medie aritemtica a cate 10 valori masurate
+    int sum=0, nrMas=0; 
+    while (nrMas<50){
     ADMUX = (ADMUX & 0xF0 | ch & 0x0F);
 
     //Activam conversia efectiva
@@ -26,10 +29,12 @@ public:
       ;  //Se asteapta
 
     float temperature = (ADC * 5.0 / 1023.0) * 100;
+    nrMas++;
+    sum += temperature;
+    }
+ 
 
-
-
-    return (uint16_t)temperature;
+    return (uint16_t)sum/nrMas;
   
   }
 };
