@@ -48,7 +48,7 @@ void setup() {
 }
 
 void loop() {
-  uint16_t temperature = tempSens.getTemp(1);
+  temperature = tempSens.getTemp(1);
   itoa(T_set, temp_dor, 10);
   itoa(temperature, temp_cur, 10);
   itoa(timpRamas, timpRam, 10);
@@ -114,19 +114,35 @@ void loop() {
 // Functie pentru calculul output-ului din PID si a scrie dutycycle-ul necesar in pwm
 
 void calculPID_si_scrierePWM() {
-  eroare = T_set - temperature;
-  suma_erori += eroare * dt;
-  derivativa = (eroare - eroare_anterioara) / dt;
-  output = (kp * eroare) + (ki * suma_erori) + (kd * derivativa);
+  eroare = T_set - temperature;  // Calculează eroarea
+  suma_erori += eroare * dt;  // Integrarea erorii
+  derivativa = (eroare - eroare_anterioara) / dt;  // Derivata erorii
+  output = (kp * eroare) + (ki * suma_erori) + (kd * derivativa);  // Calculul final al PID
 
-  //Limitam ca output-ul sa nu depaseasca intervalul 0-255
+  // Limităm output-ul să nu depășească intervalul 0-255
   if (output > 255) output = 255;
   else if (output < 0) output = 0;
-  //Salvam eroarea curenta ca fiind ultima pentru urmatoarele calcule ale output-ului
-  eroare_anterioara = eroare;
-  delay(10);
+
+  // Afișăm valorile pentru fiecare element
+  Serial.print("Eroare: ");
+  Serial.println(eroare);
+  
+  Serial.print("Suma erorilor: ");
+  Serial.println(suma_erori);
+  
+  Serial.print("Derivativa: ");
+  Serial.println(derivativa);
+  
+  Serial.print("Output PID: ");
   Serial.println(output);
 
+  // Salvăm eroarea curentă ca fiind ultima pentru următoarele calcule ale output-ului
+  eroare_anterioara = eroare;
+
+  delay(10);  // Pauză pentru a permite citirea serialului
+  Serial.println(output);  // Afisăm output-ul pentru verificare
+
+  // Setăm PWM-ul
   myPwm.setDC(output);
 }
 
