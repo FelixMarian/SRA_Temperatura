@@ -19,7 +19,7 @@ public:
   uint16_t getTemp(uint8_t ch) {
     //Filtram datele printr-o medie aritemtica a cate 10 valori masurate
     int sum=0, nrMas=0; 
-    while (nrMas<50){
+    while (nrMas<150){
     ADMUX = (ADMUX & 0xF0 | ch & 0x0F);
 
     //Activam conversia efectiva

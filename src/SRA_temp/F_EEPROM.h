@@ -9,23 +9,24 @@ class F_EEPROM{
 private:
   double t_set,t_incalzire, t_mentinere, t_racire, K_p, K_l, K_d;
 public:
-  F_EEPROM(){
-    t_set = EEPROM.read(T_set_adr);
-    t_incalzire = EEPROM.read(T_incalzire_adr);
-    t_mentinere = EEPROM.read(T_mentinere_adr);
-    t_racire = EEPROM.read(T_racire_adr);
-    K_p = EEPROM.read(K_P_adr);
-    K_l = EEPROM.read(K_L_adr);
-    K_d = EEPROM.read(K_D_adr);
-  }
+F_EEPROM() {
+    EEPROM.get(T_set_adr, t_set);
+    EEPROM.get(T_incalzire_adr, t_incalzire);
+    EEPROM.get(T_mentinere_adr, t_mentinere);
+    EEPROM.get(T_racire_adr, t_racire);
+    EEPROM.get(K_P_adr, K_p);
+    EEPROM.get(K_L_adr, K_l);
+    EEPROM.get(K_D_adr, K_d);
+}
 
-  void write_t_set(double value){ EEPROM.write(T_set_adr, value);}
-  void write_t_incalzire(double value){ EEPROM.write(T_incalzire_adr, value);}
-  void write_t_mentinere(double value){ EEPROM.write(T_mentinere_adr,value);}
-  void write_t_racire(double value){ EEPROM.write(T_racire_adr,value);}
-  void write_K_p(double value){ EEPROM.write(K_P_adr,value);}
-  void write_K_l(double value){ EEPROM.write(K_L_adr,value);}
-  void write_K_d(double value){ EEPROM.write(K_D_adr,value);}
+
+void write_t_set(double value) { EEPROM.put(T_set_adr, value); }
+void write_t_incalzire(double value) { EEPROM.put(T_incalzire_adr, value); }
+void write_t_mentinere(double value) { EEPROM.put(T_mentinere_adr, value); }
+void write_t_racire(double value) { EEPROM.put(T_racire_adr, value); }
+void write_K_p(double value) { EEPROM.put(K_P_adr, value); }
+void write_K_l(double value) { EEPROM.put(K_L_adr, value); }
+void write_K_d(double value) { EEPROM.put(K_D_adr, value); }
 
   double get_t_set(){return t_set;}
   double get_t_incalzire(){return t_incalzire;}

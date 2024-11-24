@@ -16,7 +16,7 @@ pwm myPwm;
 F_EEPROM myEEPROM;
 byte menuState = 0;
 double eroare = 0, suma_erori = 0, eroare_anterioara = 0, derivativa = 0, output;
-double dt = 0.01;  //Timp de  esantionare de 0.01S
+double dt = 0.1;  //Timp de  esantionare de 0.1S
 double T_set, T_inc, T_men, T_rac, kp, ki, kd;
 bool state = false;
 Button btn_OK(9), btn_CANCEL(10), btn_LEFT(8), btn_RIGHT(12);
@@ -24,6 +24,9 @@ char temp_dor[15], temp_cur[15], timpRam[15];
 int SRAstate = 0;  // 0 - Stop, 1 - Inc, 2 - Men, 3 - Rac
 bool newState = true;
 int timpRamas;
+double Temp_interm, pas_crestere;
+
+unsigned long startTime, startTimeOkBtn = 0, startTimeBtn;
 
 void setup() {
   btn_OK.init();
@@ -36,6 +39,8 @@ void setup() {
   tempSens.init();
   myLCD.init();
   myPwm.init();
+  startTime = millis();
+  startTimeBtn = millis();
 
   //Initializam cu valorile din EEPROM
   kp = myEEPROM.get_t_K_p();
@@ -54,19 +59,64 @@ void loop() {
   itoa(timpRamas, timpRam, 10);
   //clock.returnClock();
   oled.showText(temp_dor, temp_cur, timpRam, SRAstate);
-  delay(125);
+
+
 
   switch (SRAstate) {
     case 1:
       if (newState) {
         timpRamas = T_inc;
         newState = false;
-      } else if (timpRamas == 1) {
+      } else if (timpRamas == 0) {
         SRAstate = 2;
         newState = true;
       } else {
+        //Incrementam la o secunda temp_intermediara
+        if (millis() - startTime > 880) {
+          startTime = millis();
+          Temp_interm += pas_crestere;
+          timpRamas--;
+
+          // Corectare pentru a nu depăși T_set
+          if (Temp_interm >= T_set - pas_crestere) {
+            Temp_interm = T_set;
+          }
+
+          // Debugging
+          Serial.print("Temp_interm: ");
+          Serial.println(Temp_interm);
+          Serial.print("T_set: ");
+          Serial.println(T_set);
+          // Afișăm valorile pentru fiecare element
+          Serial.print(" Er: ");
+          Serial.print(eroare);
+
+          Serial.print(" Tmp_a: ");
+          Serial.print(temperature);
+
+          Serial.print(" Target: ");
+          Serial.print(Temp_interm);
+
+          Serial.print(" Suma e: ");
+          Serial.print(suma_erori);
+
+          Serial.print(" Deriv: ");
+          Serial.print(derivativa);
+
+          Serial.print(" Output: ");
+          Serial.print(output);
+
+          Serial.print(" Kp: ");
+          Serial.print(kp, 3);
+
+          Serial.print(" Ki: ");
+          Serial.print(ki, 3);
+
+          Serial.print(" Kd: ");
+          Serial.println(kd, 3);
+        }
+
         calculPID_si_scrierePWM();
-        Serial.println(temperature);
       }
       break;
     case 2:
@@ -77,8 +127,7 @@ void loop() {
         SRAstate = 3;
         newState = true;
       } else {
-        calculPID_si_scrierePWM();
-        Serial.println(temperature);
+        //calculPID_si_scrierePWM();
       }
       break;
     case 3:
@@ -90,57 +139,51 @@ void loop() {
         newState = true;
       } else {
         T_set = 25;  //Resetam T_set la 25 de grade
-        calculPID_si_scrierePWM();
-        Serial.println(temperature);
+        //calculPID_si_scrierePWM();
       }
       break;
   }
 
-  //Daca se apasa start incepem treaba
-  if (btn_OK.getValue() && menuState == 0) { SRAstate = 1; };
 
-  if (btn_RIGHT.getValue() && menuState < 7) {
-    menuState++;
-  } else if (btn_LEFT.getValue() && menuState > 0) {
-    menuState--;
+  if (millis() - startTimeBtn > 500) {
+    startTimeBtn = millis();
+    //Daca se apasa start incepem treaba
+    if (btn_OK.getValue() && menuState == 0) {
+      SRAstate = 1;
+      pas_crestere = (double)(T_set - temperature) / T_inc;
+      Temp_interm = temperature;
+    };
+
+    if (btn_RIGHT.getValue() && menuState < 7) {
+      menuState++;
+    } else if (btn_LEFT.getValue() && menuState > 0) {
+      menuState--;
+    }
+    myLCD.write_menu(menuState);
+    if (btn_OK.getValue())
+      set_parametrii();
   }
-  myLCD.write_menu(menuState);
-  if (btn_OK.getValue())
-    set_parametrii();
-  delay(250);
 }
 
 
 // Functie pentru calculul output-ului din PID si a scrie dutycycle-ul necesar in pwm
 
 void calculPID_si_scrierePWM() {
-  eroare = T_set - temperature;  // Calculează eroarea
-  suma_erori += eroare * dt;  // Integrarea erorii
-  derivativa = (eroare - eroare_anterioara) / dt;  // Derivata erorii
+  eroare = Temp_interm - temperature;                              // Calculează eroarea
+  suma_erori += eroare * dt;                                       // Integrarea erorii
+  derivativa = (eroare - eroare_anterioara) / dt;                  // Derivata erorii
+                                                                   // if(derivativa<0) derivativa=0;
   output = (kp * eroare) + (ki * suma_erori) + (kd * derivativa);  // Calculul final al PID
 
   // Limităm output-ul să nu depășească intervalul 0-255
   if (output > 255) output = 255;
   else if (output < 0) output = 0;
 
-  // Afișăm valorile pentru fiecare element
-  Serial.print("Eroare: ");
-  Serial.println(eroare);
-  
-  Serial.print("Suma erorilor: ");
-  Serial.println(suma_erori);
-  
-  Serial.print("Derivativa: ");
-  Serial.println(derivativa);
-  
-  Serial.print("Output PID: ");
-  Serial.println(output);
 
   // Salvăm eroarea curentă ca fiind ultima pentru următoarele calcule ale output-ului
   eroare_anterioara = eroare;
 
-  delay(10);  // Pauză pentru a permite citirea serialului
-  Serial.println(output);  // Afisăm output-ul pentru verificare
+  delay(1);  // Pauză pentru a permite citirea serialului
 
   // Setăm PWM-ul
   myPwm.setDC(output);
@@ -179,15 +222,15 @@ void set_parametrii() {
 
       break;
     case 7:  //Kd
-      value = setting() / 10;
+      value = setting() / 1000;
       myEEPROM.write_K_d(value);
 
       break;
   }
 }
 
-byte setting() {
-  byte value = 0, setting = 1;
+double setting() {
+  double value = 0, setting = 1;
   while (setting) {
     myLCD.show_value(value);
     if (btn_RIGHT.getValue() && value < 150)
@@ -225,5 +268,5 @@ ISR(TIMER1_COMPA_vect) {
   strcat(fullHourFormat, " ");
 
   strcpy(clock_formatted_time, fullHourFormat);*/
-  timpRamas--;
+  //timpRamas--;
 }
