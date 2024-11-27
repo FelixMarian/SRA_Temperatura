@@ -24,7 +24,7 @@ char temp_dor[15], temp_cur[15], timpRam[15];
 int SRAstate = 0;  // 0 - Stop, 1 - Inc, 2 - Men, 3 - Rac
 bool newState = true;
 int timpRamas;
-double Temp_interm, pas_crestere;
+double Temp_interm, pas_crestere, pas_scadere, temp_initial;
 
 unsigned long startTime, startTimeOkBtn = 0, startTimeBtn;
 
@@ -66,15 +66,16 @@ void loop() {
     case 1:
       if (newState) {
         timpRamas = T_inc;
+        temp_initial = temperature;
         newState = false;
       } else if (timpRamas == 0) {
-        SRAstate = 2;
         newState = true;
+        SRAstate = 2;
       } else {
         //Incrementam la o secunda temp_intermediara
         if (millis() - startTime > 880) {
           startTime = millis();
-          Temp_interm += pas_crestere;
+          Temp_interm += pas_crestere; 
           timpRamas--;
 
           // Corectare pentru a nu depăși T_set
@@ -83,7 +84,7 @@ void loop() {
           }
 
           // Debugging
-          Serial.print("Temp_interm: ");
+          /*Serial.print("Temp_interm: ");
           Serial.println(Temp_interm);
           Serial.print("T_set: ");
           Serial.println(T_set);
@@ -113,7 +114,7 @@ void loop() {
           Serial.print(ki, 3);
 
           Serial.print(" Kd: ");
-          Serial.println(kd, 3);
+          Serial.println(kd, 3);*/
         }
 
         calculPID_si_scrierePWM();
@@ -123,23 +124,67 @@ void loop() {
       if (newState) {
         timpRamas = T_men;
         newState = false;
-      } else if (timpRamas == 1) {
+      } else if (timpRamas == 0) {
         SRAstate = 3;
         newState = true;
+        
       } else {
-        //calculPID_si_scrierePWM();
+        if (millis() - startTime > 880) {
+          startTime = millis();
+          timpRamas--;
+        }
+        calculPID_si_scrierePWM();
       }
       break;
     case 3:
       if (newState) {
         timpRamas = T_rac;
+        T_set = temp_initial;
+        pas_scadere = (temperature-temp_initial)/T_rac;
         newState = false;
-      } else if (timpRamas == 1) {
+      } else if (timpRamas == 0) {
         SRAstate = 0;
         newState = true;
       } else {
-        T_set = 25;  //Resetam T_set la 25 de grade
-        //calculPID_si_scrierePWM();
+        if (millis() - startTime > 880) {
+          startTime = millis();
+          Temp_interm -= pas_scadere; 
+          timpRamas--;
+
+         /* Serial.print("Temp_interm: ");
+          Serial.println(Temp_interm);
+          Serial.print("T_set: ");
+          Serial.println(T_set);
+          // Afișăm valorile pentru fiecare element
+          Serial.print(" Er: ");
+          Serial.print(eroare);
+
+          Serial.print(" Tmp_a: ");
+          Serial.print(temperature);
+
+          Serial.print(" Target: ");
+          Serial.print(Temp_interm);
+
+          Serial.print(" Suma e: ");
+          Serial.print(suma_erori);
+
+          Serial.print(" Deriv: ");
+          Serial.print(derivativa);
+
+          Serial.print(" Output: ");
+          Serial.print(output);
+
+          Serial.print(" Kp: ");
+          Serial.print(kp, 3);
+
+          Serial.print(" Ki: ");
+          Serial.print(ki, 3);
+
+          Serial.print(" Kd: ");
+          Serial.println(kd, 3);*/
+        }
+        calculPID_si_scrierePWM();
+
       }
       break;
   }
@@ -172,7 +217,6 @@ void calculPID_si_scrierePWM() {
   eroare = Temp_interm - temperature;                              // Calculează eroarea
   suma_erori += eroare * dt;                                       // Integrarea erorii
   derivativa = (eroare - eroare_anterioara) / dt;                  // Derivata erorii
-                                                                   // if(derivativa<0) derivativa=0;
   output = (kp * eroare) + (ki * suma_erori) + (kd * derivativa);  // Calculul final al PID
 
   // Limităm output-ul să nu depășească intervalul 0-255
@@ -188,6 +232,7 @@ void calculPID_si_scrierePWM() {
   // Setăm PWM-ul
   myPwm.setDC(output);
 }
+ 
 
 //Aici initializam ceasul si-l facem sa se incrementeze la fiecare secunda si il si afisam la fiecare intrerupere, alaturi de temperatura reala
 
