@@ -1,65 +1,79 @@
-#ifndef LCD_H
-#define LCD_H
+#ifndef OLED_DISPLAY_H
+#define OLED_DISPLAY_H
 
-#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <U8g2lib.h>
 
-class LCD {
+class LCD_display {
 private:
-  byte RS, E, D4, D5, D6, D7;
-  LiquidCrystal lcd16x2;
+  U8G2_SH1106_128X64_NONAME_F_HW_I2C oled; // Obiectul OLED pentru U8G2
+
 public:
-  LCD(byte RSc, byte Ec, byte D4c, byte D5c, byte D6c, byte D7c)
-    : RS(RSc), E(Ec), D4(D4c), D5(D5c), D6(D6c), D7(D7c),
-      lcd16x2(RS, E, D4, D5, D6, D7) {}
+  // Constructor
+  LCD_display()
+    : oled(U8G2_R0, /* reset=*/ U8X8_PIN_NONE) {}
+
+  // Inițializarea OLED-ului
   void init() {
-    lcd16x2.begin(16, 2);
+    oled.begin();
+    oled.clearBuffer();
+    oled.setFont(u8g2_font_6x10_tf); // Font mic pentru o afișare optimă
   }
 
-  void show_value(int value){
-    lcd16x2.setCursor(0,0);
-    lcd16x2.print("               ");
-    lcd16x2.setCursor(4,0);
-    lcd16x2.print(value);
+  // Afișează o valoare pe OLED
+  void show_value(int value) {
+    oled.clearBuffer();
+    oled.setCursor(0, 10);  // Cursor pe prima linie
+    oled.print("Valoare: ");
+    oled.setCursor(60, 10);
+    oled.print(value);
+    oled.sendBuffer();
   }
 
+  // Afișează meniul în funcție de stare
   void write_menu(byte state) {
+    oled.clearBuffer(); // Ștergem buffer-ul pentru a nu suprascrie textul
+
     switch (state) {
       case 0:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("-> START     ");
+        oled.setCursor(0, 10);
+        oled.print("-> START");
         break;
       case 1:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set T_SET        ");
+        oled.setCursor(0, 10);
+        oled.print("Set T_SET");
         break;
       case 2:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set T_Incalzire        ");
+        oled.setCursor(0, 10);
+        oled.print("Set T_Incalzire");
         break;
       case 3:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set T_mentinere       ");
+        oled.setCursor(0, 10);
+        oled.print("Set T_mentinere");
         break;
       case 4:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set T_racire          ");
+        oled.setCursor(0, 10);
+        oled.print("Set T_racire");
         break;
       case 5:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set Kp          ");
+        oled.setCursor(0, 10);
+        oled.print("Set Kp");
         break;
       case 6:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set Kl          ");
+        oled.setCursor(0, 10);
+        oled.print("Set Kl");
         break;
       case 7:
-        lcd16x2.setCursor(0, 0);
-        lcd16x2.write("Set Kd          ");
+        oled.setCursor(0, 10);
+        oled.print("Set Kd");
         break;
       default:
-        Serial.println("Unknown state");
+        oled.setCursor(0, 10);
+        oled.print("Unknown state");
         break;
     }
+
+    oled.sendBuffer(); // Trimite buffer-ul pentru a afișa textul
   }
 };
 

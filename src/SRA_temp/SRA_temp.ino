@@ -10,7 +10,6 @@
 OLED_Display oled;
 Clock clock(5000);
 LM35 tempSens;
-LCD myLCD(7, 6, 5, 4, 3, 2);
 int temperature;
 pwm myPwm;
 F_EEPROM myEEPROM;
@@ -19,7 +18,7 @@ double eroare = 0, suma_erori = 0, eroare_anterioara = 0, derivativa = 0, output
 double dt = 0.1;  //Timp de  esantionare de 0.1S
 double T_set, T_inc, T_men, T_rac, kp, ki, kd;
 bool state = false;
-Button btn_OK(9), btn_CANCEL(10), btn_LEFT(8), btn_RIGHT(12);
+Button btn_OK(8), btn_CANCEL(9), btn_LEFT(10), btn_RIGHT(12);
 char temp_dor[15], temp_cur[15], timpRam[15];
 int SRAstate = 0;  // 0 - Stop, 1 - Inc, 2 - Men, 3 - Rac
 bool newState = true;
@@ -37,7 +36,6 @@ void setup() {
   Serial.begin(9600);
   clock.init();
   tempSens.init();
-  myLCD.init();
   myPwm.init();
   startTime = millis();
   startTimeBtn = millis();
@@ -204,7 +202,7 @@ void loop() {
     } else if (btn_LEFT.getValue() && menuState > 0) {
       menuState--;
     }
-    myLCD.write_menu(menuState);
+    oled.write_menu(menuState);
     if (btn_OK.getValue())
       set_parametrii();
   }
@@ -277,12 +275,12 @@ void set_parametrii() {
 double setting() {
   double value = 0, setting = 1;
   while (setting) {
-    myLCD.show_value(value);
+    oled.show_value(value);
     if (btn_RIGHT.getValue() && value < 150)
       value += 1;
     else if (btn_LEFT.getValue() && value > 0)
       value -= 1;
-    myLCD.show_value(value);
+    oled.show_value(value);
     delay(250);
     if (btn_OK.getValue()) {
       setting = 0;
